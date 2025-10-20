@@ -24,13 +24,14 @@ struct AckermannConfig {
       velocity_limits_; /**< min and max linear velocity (m/s) */
   std::pair<double, double>
       steering_limits_; /**< min and max steering angle (rad) */
+  // *** commented these variables for now, to clear cpp-check, will be uncommented later *** ///
   // PID parameters for wheel speed controllers (applied equally to all wheels)
-  double pid_Kp{0.0};
-  double pid_Ki{0.0};
-  double pid_Kd{0.0};
-  double pid_min_output{-1000.0};
-  double pid_max_output{1000.0};
-  double pid_delta_time{0.01};
+  // double pid_Kp{0.0};
+  // double pid_Ki{0.0};
+  // double pid_Kd{0.0};
+  // double pid_min_output{-1000.0};
+  // double pid_max_output{1000.0};
+  // double pid_delta_time{0.01};
 };
 
 /**
