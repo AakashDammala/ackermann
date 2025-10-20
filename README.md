@@ -14,6 +14,12 @@ Project team:
 - Siddhant Deshmukh (iamsid@umd.edu)
 - Dayanidhi Kandade (dotsv@umd.edu)
 
+## Project deliverables - Phase 1
+  - Project proposal pdf - [link](https://drive.google.com/drive/folders/17YOXgnPOURfj6kv4C_gz0j2qia5i_SLz)
+  - Task backlog - [link](https://docs.google.com/spreadsheets/d/1MSmNYYrsdP3VOwCCngEbLwx22oEamR3j0daP1eC6vfI)
+  - Quad chart - [link](https://drive.google.com/drive/folders/1tBJrR3zndVTcWkPMcNMntL4yrfq1HN4L)
+  - Project proposal video - [link](https://drive.google.com/drive/folders/18yC6tSubWybAqKMQM1WBmayf3rTnOC_k)
+
 ## Instructions to run the project
 
 ```bash
