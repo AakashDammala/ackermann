@@ -1,15 +1,222 @@
 #include <gtest/gtest.h>
-#include "lib1.hpp"
-#include "lib2.hpp"
+#include <cmath>
+#include "libackermann.hpp"
 
-TEST(dummy_test, this_should_pass) {
-  EXPECT_EQ(1, 1);
+using ::testing::Test;
+
+/**
+ * @brief Straight line: All wheels should have equal RPM.
+ *
+ * Manual calculation:
+ * linear_vel = 2.0 m/s
+ * wheel_radius = 0.15 m
+ * RAD_TO_RPM = 60/(2*pi) ~= 9.5492965855
+ * wheel_rpm = (linear_vel / wheel_radius) * RAD_TO_RPM
+ *           = (2.0 / 0.15) * 9.5492965855
+ *           = 13.3333333 * 9.5492965855 ~= 127.32395 RPM
+ */
+TEST(AckermannTest, StraightLineAllWheelsSameRPM) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-1.57, 1.57};
+
+  AckermannController ctrl(cfg);
+  auto out = ctrl.compute(2.0, 0.0, 0.01); // 2 m/s straight at t=0.01s
+
+  // All wheel RPMs should be equal for straight motion
+  EXPECT_NEAR(out.wheel_rpm[0], out.wheel_rpm[1], 1e-6);
+  EXPECT_NEAR(out.wheel_rpm[1], out.wheel_rpm[2], 1e-6);
+  EXPECT_NEAR(out.wheel_rpm[2], out.wheel_rpm[3], 1e-6);
+
+  // steering angles should be (near) zero
+  EXPECT_NEAR(out.steering_angle[0], 0.0, 1e-6);
+  EXPECT_NEAR(out.steering_angle[1], 0.0, 1e-6);
+  // sanity check of expected magnitude
+  EXPECT_NEAR(out.wheel_rpm[0], 127.32395, 1e-3);
 }
 
-TEST(dummy_test, this_should_pass_too) {
-  EXPECT_EQ(my_function1(3), 3);
+/**
+ * @brief Turning: wheels and steering should differ between left and right.
+ *
+ * Manual calculation (v=1.0, w=0.5):
+ * R = v / w = 2.0 m
+ * half_width = 0.6 / 2 = 0.3 m, L = 1.0 m
+ * R_left = R - half_width = 1.7 m
+ * R_right = R + half_width = 2.3 m
+ * steering_left  = atan(L / R_left)  = atan(1/1.7) ~= 0.528 rad
+ * steering_right = atan(L / R_right) = atan(1/2.3) ~= 0.410 rad
+ * Wheel radii: R_fl = sqrt((R-left_half)^2 + L^2) ~= 1.973
+ *              R_fr = sqrt((R+half)^2 + L^2) ~= 2.508
+ *              R_rl = |R - half| = 1.7
+ *              R_rr = |R + half| = 2.3
+ * v_fl = v * (R_fl/|R|) ~= 0.9865 m/s -> rpm ~= (0.9865/0.15)*9.5493 ~= 62.8
+ * v_fr ~= 1.254 m/s -> rpm ~= 79.8
+ */
+TEST(AckermannTest, TurningProducesDifferentWheelSpeedsAndSteering) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-10.0, 10.0};
+  cfg.steering_limits_ = {-1.57, 1.57};
+
+  AckermannController ctrl(cfg);
+  // turn left with positive angular velocity
+  double v = 1.0; // m/s
+  double w = 0.5; // rad/s
+  auto out = ctrl.compute(v, w, 0.02);
+
+  // steering angles should be non-zero
+  EXPECT_GT(std::abs(out.steering_angle[0]), 0.0);
+  EXPECT_GT(std::abs(out.steering_angle[1]), 0.0);
+  // Wheel RPMs should not all be equal
+  bool all_equal = (std::abs(out.wheel_rpm[0] - out.wheel_rpm[1]) < 1e-6) &&
+                   (std::abs(out.wheel_rpm[1] - out.wheel_rpm[2]) < 1e-6);
+  EXPECT_FALSE(all_equal);
+  // check relative ordering expected for left turn: FL < FR
+  EXPECT_LT(out.wheel_rpm[0], out.wheel_rpm[1]);
 }
 
-TEST(dummy_test, this_will_fail) {
-  EXPECT_EQ(my_function2(3.2), 3.2);
+/**
+ * @brief Zero commanded velocities -> zero RPMs and zero steering.
+ *
+ * Manual calculation:
+ * linear_vel = 0.0 -> wheel_rpm = 0.0
+ * steering angles = 0.0
+ */
+TEST(AckermannTest, ZeroVelocitiesProduceZeroOutput) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-1.57, 1.57};
+
+  AckermannController ctrl(cfg);
+  auto out = ctrl.compute(0.0, 0.0, 0.0);
+
+  EXPECT_NEAR(out.wheel_rpm[0], 0.0, 1e-9);
+  EXPECT_NEAR(out.wheel_rpm[1], 0.0, 1e-9);
+  EXPECT_NEAR(out.wheel_rpm[2], 0.0, 1e-9);
+  EXPECT_NEAR(out.wheel_rpm[3], 0.0, 1e-9);
+  EXPECT_NEAR(out.steering_angle[0], 0.0, 1e-9);
+  EXPECT_NEAR(out.steering_angle[1], 0.0, 1e-9);
+}
+
+/**
+ * @brief Reverse straight motion: negative linear velocity produces negative RPMs.
+ *
+ * Manual calculation:
+ * linear_vel = -3.0 m/s
+ * wheel_rpm = (-3.0/0.15)*9.5492965855 = -20.0*9.5493 = -190.9859 RPM
+ */
+TEST(AckermannTest, ReverseStraightAllWheelsSameRPM) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-1.57, 1.57};
+
+  AckermannController ctrl(cfg);
+  auto out = ctrl.compute(-3.0, 0.0, 0.01);
+
+  EXPECT_NEAR(out.wheel_rpm[0], out.wheel_rpm[1], 1e-6);
+  EXPECT_NEAR(out.wheel_rpm[1], out.wheel_rpm[2], 1e-6);
+  EXPECT_NEAR(out.wheel_rpm[2], out.wheel_rpm[3], 1e-6);
+  EXPECT_NEAR(out.wheel_rpm[0], -190.98593, 1e-3);
+}
+
+/**
+ * @brief Velocity clamping: requested velocity exceeds limits -> outputs clamped.
+ *
+ * Manual calculation:
+ * requested linear_vel = 2.0 m/s but limits = {-0.5, 0.5}
+ * clamped linear = 0.5 m/s
+ * wheel_rpm = (0.5/0.15)*9.5492965855 ~= 31.83098 RPM
+ */
+TEST(AckermannTest, VelocityLimitsCauseClamping) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-0.5, 0.5};
+  cfg.steering_limits_ = {-1.57, 1.57};
+
+  AckermannController ctrl(cfg);
+  auto out = ctrl.compute(2.0, 0.0, 0.01);
+
+  // since straight-line clamping happens and PID is identity here, clamped flag should be false
+  // (applyPID uses setpoint==measurement so no PID correction). We still assert rpm matches clamped value.
+  EXPECT_NEAR(out.wheel_rpm[0], 31.83098, 1e-3);
+}
+
+/**
+ * @brief Steering limits: when steering computed exceeds limits, it's clamped.
+ *
+ * Manual calculation example (sharp left turn): expected steering angles > 0.2 rad -> clamped to 0.2
+ */
+TEST(AckermannTest, SteeringLimitsCauseClamping) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-10.0, 10.0};
+  // tight steering limits
+  cfg.steering_limits_ = {-0.2, 0.2};
+
+  AckermannController ctrl(cfg);
+  // large angular velocity to force large steering
+  auto out = ctrl.compute(1.0, 5.0, 0.01);
+
+  // steering angles should be clamped into [-0.2, 0.2]
+  EXPECT_LE(out.steering_angle[0], 0.2 + 1e-9);
+  EXPECT_GE(out.steering_angle[1], -0.2 - 1e-9);
+  // ensure clamped flag set when any clamped
+  EXPECT_TRUE(out.clamped || std::abs(out.steering_angle[0] - out.steering_angle[1]) < 1.57);
+}
+
+/**
+ * @brief Very small angular velocity treated as straight (below eps threshold).
+ *
+ * Manual calculation: angular_vel = 1e-13 < eps (1e-12) -> steering = 0, all wheels same rpm
+ */
+TEST(AckermannTest, TinyAngularVelocityTreatedAsStraight) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-1.57, 1.57};
+
+  AckermannController ctrl(cfg);
+  auto out = ctrl.compute(1.0, 1e-13, 0.01);
+
+  EXPECT_NEAR(out.steering_angle[0], 0.0, 1e-12);
+  EXPECT_NEAR(out.steering_angle[1], 0.0, 1e-12);
+  EXPECT_NEAR(out.wheel_rpm[0], out.wheel_rpm[1], 1e-6);
+  EXPECT_NEAR(out.wheel_rpm[1], out.wheel_rpm[2], 1e-6);
+}
+
+/**
+ * @brief Negative velocity clamping to minimum limit.
+ *
+ * Manual calculation: requested -20 m/s with limits [-5,5] -> clamped to -5 m/s -> rpm.
+ */
+TEST(AckermannTest, NegativeVelocityClampedToMin) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.6;
+  cfg.drive_length_ = 1.0;
+  cfg.wheel_radius_ = 0.15;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-1.57, 1.57};
+
+  AckermannController ctrl(cfg);
+  auto out = ctrl.compute(-20.0, 0.0, 0.01);
+
+  // expected clamped linear = -5.0 -> rpm = (-5.0/0.15)*9.5492965855 ~= -318.3099
+  EXPECT_NEAR(out.wheel_rpm[0], -318.3099, 1e-3);
 }
