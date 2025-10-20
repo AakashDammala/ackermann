@@ -44,6 +44,13 @@ open build/test_coverage/index.html
 # Generate and view doxygen documentation
 cmake --build build/ --target docs
 open docs/html/index.html
+
+# Generate and view UML diagrams
+# install clang-uml and plantuml
+clang-uml
+cd docs/diagrams
+plantuml uml_class_ackermann_controller_library.puml
+open uml_class_ackermann_controller_library.png
 ```
 
 ## Project Structure
@@ -55,7 +62,7 @@ ackermann-controller/
 │   ├── libackermann/     # Ackermann controller implementation
 │   └── libpid/          # PID controller implementation
 ├── test/                 # Unit tests
-└── docs/                 # Documentation
+└── docs/                 # Documentation (doxygen documentation, test coverage reports, uml diagrams)
 ```
 
 ## Features

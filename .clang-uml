@@ -1,0 +1,9 @@
+compilation_database_dir: build
+output_directory: docs/diagrams
+diagrams:
+  uml_class_ackermann_controller_library:
+    type: class
+    title: UML Class diagram - Ackermann Controller library
+    glob:
+      - libs/libackermann/*.cpp
+    using_namespace: basic_class
