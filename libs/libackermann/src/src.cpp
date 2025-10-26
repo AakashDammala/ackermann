@@ -16,6 +16,7 @@ template <typename T> static inline T clamp_val(T v, T lo, T hi) {
 }
 
 static constexpr double RAD_TO_RPM = 60.0 / (2.0 * M_PI);
+static constexpr double TWO_PI = 2.0 * M_PI;
 
 /**
  * @brief Construct the PIDController object (implementation).
@@ -53,4 +54,18 @@ AckermannOutput AckermannController::compute(double linear_vel,
 
   out.clamped = false;
   return out;
+}
+
+AckermannModel::~AckermannModel() {
+  // no dynamic resources to free
+}
+
+AckermannModel::AckermannModel(const AckermannConfig& config,
+                                 AckermannState initial_state,const double delta_time)
+    : ackermann_config_(config), state_(initial_state), delta_time_(delta_time) {}
+    
+AckermannState AckermannModel::update(double acceleration,
+                                       double steering_angle) {
+  // Stub implementation: return the current state without changes
+  return state_;
 }
