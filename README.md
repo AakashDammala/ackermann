@@ -20,6 +20,14 @@ Project team:
   - Quad chart - [link](https://drive.google.com/drive/folders/1tBJrR3zndVTcWkPMcNMntL4yrfq1HN4L)
   - Project proposal video - [link](https://drive.google.com/drive/folders/18yC6tSubWybAqKMQM1WBmayf3rTnOC_k)
 
+## Roles:
+
+|        | **Driver** | **Navigator** | **Design Keeper** |
+|--------|------------|---------------|-------------------|
+| Phase0 | Akash      | Siddhant      | Dayanidhi         |
+| Phase1 | Siddhant   | Dayanidhi     | Akash             |
+| Phase2 | Dayanidhi  | Akash         | Siddhant          |
+
 ## Instructions to run the project
 
 ```bash

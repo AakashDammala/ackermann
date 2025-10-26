@@ -1,9 +1,10 @@
 /**
  * @file src.cpp
+ * @author Siddhant Deshmukh (iamsid@umd.edu)
  * @author Aakash Shetty Dammala (asd@umd.edu)
  * @brief Simple Ackermann steering controller.
- * @version 0.1
- * @date 2025-10-18
+ * @version 0.2
+ * @date 2025-10-26
  * @copyright Copyright (c) 2025
  */
 
