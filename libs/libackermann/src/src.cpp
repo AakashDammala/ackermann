@@ -63,9 +63,15 @@ AckermannModel::~AckermannModel() {
 AckermannModel::AckermannModel(const AckermannConfig& config,
                                  AckermannState initial_state,const double delta_time)
     : ackermann_config_(config), state_(initial_state), delta_time_(delta_time) {}
-    
+
 AckermannState AckermannModel::update(double acceleration,
                                        double steering_angle) {
-  // Stub implementation: return the current state without changes
+  state_.steering_angle_ = clamp_val(steering_angle, ackermann_config_.steering_limits_.first, ackermann_config_.steering_limits_.second);
+  state_.heading_angle_ += state_.longitudnal_speed_ * delta_time_*std::tan(steering_angle)/ackermann_config_.drive_length_; // Update heading angle
+  state_.heading_angle_ = fmod(state_.heading_angle_, TWO_PI);     // reduce angle into (-2π, 2π)
+  if (state_.heading_angle_ < 0)
+    state_.heading_angle_ += TWO_PI;            // wrap negative angles into [0, 2π)
+  state_.longitudnal_speed_ += acceleration * delta_time_;
+  state_.longitudnal_speed_ = clamp_val(state_.longitudnal_speed_, ackermann_config_.velocity_limits_.first, ackermann_config_.velocity_limits_.second);
   return state_;
 }
