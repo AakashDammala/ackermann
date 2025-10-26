@@ -253,3 +253,111 @@ TEST(AckermannModel, AccelerationTest) {
   EXPECT_NEAR(updated_state.heading_angle_, 0.0, 1e-6);
   EXPECT_NEAR(updated_state.steering_angle_, 0.0, 1e-6);
 }
+
+/**
+ * @brief Test AckermannModel update with zero acceleration and steering for straight motion.
+ */
+
+TEST(AckermannModel, StraightMotion) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.5;
+  cfg.drive_length_ = 1.2;
+  cfg.wheel_radius_ = 0.2;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-1.0, 1.0};
+
+  AckermannState initial_state{};
+  initial_state.longitudnal_speed_ = 2.0; // m/s
+  initial_state.heading_angle_ = 0.0;     // rad
+  initial_state.steering_angle_ = 0.0;    // rad
+  double delta_time = 0.1;                // s
+  AckermannModel model(cfg, initial_state, delta_time);
+  // Apply zero acceleration and zero steering for straight motion
+  AckermannState updated_state = model.update(0.0, 0.0);
+  EXPECT_NEAR(updated_state.longitudnal_speed_, 2.0, 1e-6);
+  EXPECT_NEAR(updated_state.heading_angle_, 0.0, 1e-6);
+  EXPECT_NEAR(updated_state.steering_angle_, 0.0, 1e-6);
+}
+
+/**
+ * @brief Test AckermannModel update with zero acceleration and non-zero steering for turning motion.
+ */
+
+TEST(AckermannModel, TurningMotion) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.5;
+  cfg.drive_length_ = 1.2;
+  cfg.wheel_radius_ = 0.2;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-0.5, 0.5};
+
+  AckermannState initial_state{};
+  initial_state.longitudnal_speed_ = 3.0; // m/s
+  initial_state.heading_angle_ = 0.0;     // rad
+  initial_state.steering_angle_ = 0.0;    // rad
+  double delta_time = 0.1;                // s
+  AckermannModel model(cfg, initial_state, delta_time);
+  // Apply zero acceleration and a steering angle for turning
+  double steering_angle = 0.3; // rad
+  AckermannState updated_state = model.update(0.0, steering_angle);
+  EXPECT_NEAR(updated_state.longitudnal_speed_, 3.0, 1e-6);
+  // Expected heading change: v * dt * tan(steering) / L
+  double expected_heading_change = (3.0 * delta_time * std::tan(steering_angle)) / cfg.drive_length_;
+  EXPECT_NEAR(updated_state.heading_angle_, expected_heading_change, 1e-6);
+  EXPECT_NEAR(updated_state.steering_angle_, steering_angle, 1e-6);
+}
+
+/**
+ * @brief Test AckermannModel wheel speeds and steering angles computation for turning.
+ */
+TEST(AckermannModel, WheelSpeedsAndSteeringAnglesForTurning) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.5;
+  cfg.drive_length_ = 1.2;
+  cfg.wheel_radius_ = 0.2;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-0.5, 0.5};
+
+  AckermannState initial_state{};
+  initial_state.longitudnal_speed_ = 4.0; // m/s
+  initial_state.heading_angle_ = 0.0;     // rad
+  initial_state.steering_angle_ = 0.2;    // rad
+  double delta_time = 0.1;                // s
+  AckermannModel model(cfg, initial_state, delta_time);
+  AckermannVehicleState vehicle_state = model.get_vehicle_state();
+  // Check that wheel RPMs and steering angles are computed (non-zero values)
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_GT(std::abs(vehicle_state.wheel_rpm[i]), 0.0);
+  }
+  for (int i = 0; i < 2; ++i) {
+    EXPECT_GT(std::abs(vehicle_state.wheel_steering_angle[i]), 0.0);
+  }
+}
+
+/**
+ * @brief Test AckermannModel wheel speeds and steering angles computation for straight motion.
+ */
+
+TEST(AckermannModel, WheelSpeedsAndSteeringAnglesForStraight) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.5;
+  cfg.drive_length_ = 1.2;
+  cfg.wheel_radius_ = 0.2;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-0.5, 0.5};
+
+  AckermannState initial_state{};
+  initial_state.longitudnal_speed_ = 4.0; // m/s
+  initial_state.heading_angle_ = 0.0;     // rad
+  initial_state.steering_angle_ = 0.0;    // rad
+  double delta_time = 0.1;                // s
+  AckermannModel model(cfg, initial_state, delta_time);
+  AckermannVehicleState vehicle_state = model.get_vehicle_state();
+  // Check that all wheel RPMs are equal for straight motion
+  EXPECT_NEAR(vehicle_state.wheel_rpm[0], vehicle_state.wheel_rpm[1], 1e-6);
+  EXPECT_NEAR(vehicle_state.wheel_rpm[1], vehicle_state.wheel_rpm[2], 1e-6);
+  EXPECT_NEAR(vehicle_state.wheel_rpm[2], vehicle_state.wheel_rpm[3], 1e-6);
+  // Check that steering angles are zero for straight motion
+  EXPECT_NEAR(vehicle_state.wheel_steering_angle[0], 0.0, 1e-6);
+  EXPECT_NEAR(vehicle_state.wheel_steering_angle[1], 0.0, 1e-6);
+}
