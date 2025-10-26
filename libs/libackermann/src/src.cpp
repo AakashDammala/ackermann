@@ -75,3 +75,48 @@ AckermannState AckermannModel::update(double acceleration,
   state_.longitudnal_speed_ = clamp_val(state_.longitudnal_speed_, ackermann_config_.velocity_limits_.first, ackermann_config_.velocity_limits_.second);
   return state_;
 }
+
+AckermannVehicleState AckermannModel::get_vehicle_state() const {
+  const double eps = 1e-12;
+  AckermannVehicleState vehicle_state{};
+  double v_fl, v_fr, v_rl, v_rr; // Wheel linear speeds
+  double linear_vel = state_.longitudnal_speed_;            // Linear speed
+  double half_width = ackermann_config_.drive_width_ / 2.0;
+  double L = ackermann_config_.drive_length_;
+  double steering_left;
+  double steering_right;
+
+  if (std::abs(state_.steering_angle_) < eps ) {
+    // Straight steering
+    steering_left = 0.0;
+    steering_right = 0.0;
+    v_fl = v_fr = v_rl = v_rr = linear_vel;
+  }
+  else {
+    double R = ackermann_config_.drive_length_ / std::tan(state_.steering_angle_ ); // Turning radius
+    double angular_vel = linear_vel / R;                         // Angular velocity
+
+    // Coordinates of front axle wheels relative to rear axle centerline
+    // Using simple Ackermann steering: tan(theta) = L / (R +/- half_width)
+    double R_left = R - half_width;
+    double R_right = R + half_width;
+
+    steering_left = std::atan2(L, R_left);
+    steering_right = std::atan2(L, R_right);
+ 
+  // Radii for each wheel (front left, front right, rear left, rear right)
+    double R_fl = std::hypot(R_left, L);
+    double R_fr = std::hypot(R_right, L);
+    double R_rl = std::abs(R_left);
+    double R_rr = std::abs(R_right);
+
+    // Wheel linear speeds are proportional to radius around ICR
+    v_fl = angular_vel * R_fl;
+    v_fr = angular_vel * R_fr;
+    v_rl = angular_vel * R_rl;
+    v_rr = angular_vel * R_rr;
+  }
+  
+  return vehicle_state;
+
+}
