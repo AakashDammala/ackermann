@@ -361,3 +361,52 @@ TEST(AckermannModel, WheelSpeedsAndSteeringAnglesForStraight) {
   EXPECT_NEAR(vehicle_state.wheel_steering_angle[0], 0.0, 1e-6);
   EXPECT_NEAR(vehicle_state.wheel_steering_angle[1], 0.0, 1e-6);
 }
+
+/**
+ * @brief Test AckermannModel velocity clamping when exceeding max limit.
+ */
+
+TEST(AckermannModel, VelocityClamping) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.5;
+  cfg.drive_length_ = 1.2;
+  cfg.wheel_radius_ = 0.2;
+  cfg.velocity_limits_ = {-2.0, 2.0};
+  cfg.steering_limits_ = {-0.5, 0.5};
+
+  AckermannState initial_state{};
+  initial_state.longitudnal_speed_ = 1.5; // m/s
+  initial_state.heading_angle_ = 0.0;     // rad
+  initial_state.steering_angle_ = 0.0;    // rad
+  double delta_time = 0.1;                // s
+  AckermannModel model(cfg, initial_state, delta_time);
+  // Apply acceleration that would exceed max velocity
+  double acceleration = 10000.0; // m/s^2
+  AckermannState updated_state = model.update(acceleration, 0.0);
+  // Speed should be clamped to max limit of 2.0 m/s
+  EXPECT_NEAR(updated_state.longitudnal_speed_, 2.0, 1e-6);
+}
+
+/**
+ * @brief Test AckermannModel steering angle clamping when exceeding limits.
+ */
+TEST(AckermannModel, SteeringClamping) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.5;
+  cfg.drive_length_ = 1.2;
+  cfg.wheel_radius_ = 0.2;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-0.3, 0.3};
+
+  AckermannState initial_state{};
+  initial_state.longitudnal_speed_ = 2.0; // m/s
+  initial_state.heading_angle_ = 0.0;     // rad
+  initial_state.steering_angle_ = 0.0;    // rad
+  double delta_time = 0.1;                // s
+  AckermannModel model(cfg, initial_state, delta_time);
+  // Apply steering angle that exceeds limits
+  double steering_angle = 1.0; // rad
+  AckermannState updated_state = model.update(0.0, steering_angle);
+  // Steering angle should be clamped to max limit of 0.3 rad
+  EXPECT_NEAR(updated_state.steering_angle_, 0.3, 1e-6);
+}
