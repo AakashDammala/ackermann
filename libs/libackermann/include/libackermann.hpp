@@ -13,6 +13,28 @@
 // #include "libpid.hpp"
 
 /**
+ * @brief State of the Ackermann vehicle. state includes current velocity and
+ * steering angle.
+ */
+struct AckermannState {
+  double longitudnal_speed_;
+  double heading_angle_;
+  double steering_angle_;
+};
+
+/**
+ * @brief Output of the Ackermann kinematics computation.
+ *
+ * Contains wheel speeds in RPM for four wheels (ordered: front_left,
+ * front_right, rear_left, rear_right) and the steering angles (rad) for
+ * the left and right front wheels respectively.
+ */
+struct AckermannVehicleState {
+  double wheel_rpm[4];      /**< wheel speeds: FL, FR, RL, RR (RPM) */
+  double wheel_steering_angle[2]; /**< steering angles: left, right (rad) */
+};
+
+/**
  * @brief Configuration for the Ackermann controller.
  */
 struct AckermannConfig {
@@ -33,6 +55,38 @@ struct AckermannConfig {
   // double pid_max_output{1000.0};
   // double pid_delta_time{0.01};
 };
+
+class AckermannModel {
+public:
+  /**
+   * @brief Construct an AckermannModel with the given configuration and initial state.
+   * @param config Ackermann Configuration.
+   * @param initial_state Initial state of the vehicle.
+   */
+  explicit AckermannModel(const AckermannConfig& config, AckermannState initial_state, const double delta_time);
+
+  /**
+   * @brief Update the vehicle state based on acceleration and steering angle.
+   * @param acceleration Linear acceleration (m/s^2).
+   * @param steering_angle Steering angle (rad).
+   * @return Updated AckermannState.
+   */
+  AckermannState update(double acceleration, double steering_angle);
+
+  /**
+   * @brief Get the current vehicle state that is 4 wheel speeds and 2 steering angles.
+   * @return Current AckermannVehicleState.
+   */
+  AckermannVehicleState get_vehicle_state() const ;
+
+  ~AckermannModel();
+
+private:
+  const AckermannConfig ackermann_config_;
+  AckermannState state_;
+  const double delta_time_; /**< Time step for state updates (s) */
+  double linearToRPM(double &linear_speed) const;
+}; // class AckermannModel
 
 /**
  * @brief Output of the Ackermann kinematics computation.
