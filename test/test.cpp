@@ -220,3 +220,36 @@ TEST(AckermannTest, NegativeVelocityClampedToMin) {
   // expected clamped linear = -5.0 -> rpm = (-5.0/0.15)*9.5492965855 ~= -318.3099
   EXPECT_NEAR(out.wheel_rpm[0], -318.3099, 1e-3);
 }
+
+/**
+ * @brief Test AckermannModel update with acceleration input.
+ * Manual calculation:
+ * initial_speed = 1.0 m/s
+ * acceleration = 2.0 m/s^2
+ * delta_time = 0.2 s
+ * expected_speed = initial_speed + acceleration * delta_time
+ *                = 1.0 + 2.0 * 0.2 = 1.4 m/s
+ */
+TEST(AckermannModel, AccelerationTest) {
+  AckermannConfig cfg{};
+  cfg.drive_width_ = 0.5;
+  cfg.drive_length_ = 1.2;
+  cfg.wheel_radius_ = 0.2;
+  cfg.velocity_limits_ = {-5.0, 5.0};
+  cfg.steering_limits_ = {-1.0, 1.0};
+
+  AckermannState initial_state{};
+  initial_state.longitudnal_speed_ = 1.0; // m/s
+  initial_state.heading_angle_ = 0.0;     // rad
+  initial_state.steering_angle_ = 0.0;    // rad
+  double delta_time = 0.2;                // s
+  AckermannModel model(cfg, initial_state, delta_time);
+  // Apply acceleration and zero steering
+  double acceleration = 2.0; // m/s^2
+  AckermannState updated_state = model.update(acceleration, 0.0);
+  // Expected speed: v + a * dt
+  double expected_speed = 1.0 + acceleration * delta_time;
+  EXPECT_NEAR(updated_state.longitudnal_speed_, expected_speed, 1e-6);
+  EXPECT_NEAR(updated_state.heading_angle_, 0.0, 1e-6);
+  EXPECT_NEAR(updated_state.steering_angle_, 0.0, 1e-6);
+}
