@@ -76,6 +76,11 @@ AckermannState AckermannModel::update(double acceleration,
   return state_;
 }
 
+// Convert linear speed (m/s) to wheel RPM
+double AckermannModel::linearToRPM(double &linear_speed) const {
+  return (linear_speed / ackermann_config_.wheel_radius_) * RAD_TO_RPM;
+}
+
 AckermannVehicleState AckermannModel::get_vehicle_state() const {
   const double eps = 1e-12;
   AckermannVehicleState vehicle_state{};
@@ -116,6 +121,13 @@ AckermannVehicleState AckermannModel::get_vehicle_state() const {
     v_rl = angular_vel * R_rl;
     v_rr = angular_vel * R_rr;
   }
+  
+  vehicle_state.wheel_steering_angle[0] = steering_left;
+  vehicle_state.wheel_steering_angle[1] = steering_right;
+  vehicle_state.wheel_rpm[0] = linearToRPM(v_fl); // Front left
+  vehicle_state.wheel_rpm[1] = linearToRPM(v_fr); // Front
+  vehicle_state.wheel_rpm[2] = linearToRPM(v_rl); // Rear left
+  vehicle_state.wheel_rpm[3] = linearToRPM(v_rr); // Rear right
   
   return vehicle_state;
 
