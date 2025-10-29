@@ -1,6 +1,29 @@
+/**
+ * @file test.cpp
+ * @brief Unit tests for PID-integrated Ackermann controller and kinematic
+ * model.
+ *
+ * @details
+ * This suite validates:
+ * - Controller: straight motion, turning geometry, clamping
+ * (velocity/steering), tiny-omega straight handling, reverse motion, and
+ * returned telemetry fields.
+ * - Model: state updates (heading wrap, speed integration), wheel RPMs and
+ *   steering angles for both straight and turning cases, and limit clamping.
+ *
+ * Each test includes a short “Manual calculation / expectation” note where
+ * useful.
+ *
+ * @copyright
+ * (c) 2025. Licensed under the project’s license.
+ */
+
 #include <gtest/gtest.h>
+
 #include <cmath>
+
 #include "libackermann.hpp"
+#include "libpid.hpp"
 
 using ::testing::Test;
 
@@ -220,3 +243,168 @@ TEST(AckermannTest, NegativeVelocityClampedToMin) {
   // expected clamped linear = -5.0 -> rpm = (-5.0/0.15)*9.5492965855 ~= -318.3099
   EXPECT_NEAR(out.wheel_rpm[0], -318.3099, 1e-3);
 }
+
+/**
+ * @test WheelSpeedsAndSteeringAnglesForStraight
+ * @brief Straight steering yields equal RPMs and zero steering angles.
+ */
+TEST(AckermannModel, WheelSpeedsAndSteeringAnglesForStraight) {
+  AckermannConfig cfg{};
+  cfg.DriveWidth = 0.5;
+  cfg.DriveLength = 1.2;
+  cfg.WheelRadius = 0.2;
+  cfg.VelocityLimits = {-5.0, 5.0};
+  cfg.SteeringLimits = {-0.5, 0.5};
+
+  AckermannState initial_state{};
+  initial_state.LongitudinalSpeed = 4.0;
+  initial_state.HeadingAngle = 0.0;
+  initial_state.SteeringAngle = 0.0;
+  double delta_time = 0.1;
+  AckermannModel model(cfg, initial_state, delta_time);
+  AckermannVehicleState vehicle_state = model.GetVehicleState();
+
+  EXPECT_NEAR(vehicle_state.WheelRpm[0], vehicle_state.WheelRpm[1], 1e-6);
+  EXPECT_NEAR(vehicle_state.WheelRpm[1], vehicle_state.WheelRpm[2], 1e-6);
+  EXPECT_NEAR(vehicle_state.WheelRpm[2], vehicle_state.WheelRpm[3], 1e-6);
+  EXPECT_NEAR(vehicle_state.WheelSteeringAngle[0], 0.0, 1e-6);
+  EXPECT_NEAR(vehicle_state.WheelSteeringAngle[1], 0.0, 1e-6);
+}
+
+/**
+ * @test VelocityClamping
+ * @brief Excess acceleration clamps speed to configured vmax.
+ */
+TEST(AckermannModel, VelocityClamping) {
+  AckermannConfig cfg{};
+  cfg.DriveWidth = 0.5;
+  cfg.DriveLength = 1.2;
+  cfg.WheelRadius = 0.2;
+  cfg.VelocityLimits = {-2.0, 2.0};
+  cfg.SteeringLimits = {-0.5, 0.5};
+
+  AckermannState initial_state{};
+  initial_state.LongitudinalSpeed = 1.5;
+  initial_state.HeadingAngle = 0.0;
+  initial_state.SteeringAngle = 0.0;
+  double delta_time = 0.1;
+  AckermannModel model(cfg, initial_state, delta_time);
+
+  AckermannState updated_state = model.Update(10000.0, 0.0);
+  EXPECT_NEAR(updated_state.LongitudinalSpeed, 2.0, 1e-6);
+}
+
+/**
+ * @test SteeringClamping
+ * @brief Steering angle clamps to configured bounds.
+ */
+TEST(AckermannModel, SteeringClamping) {
+  AckermannConfig cfg{};
+  cfg.DriveWidth = 0.5;
+  cfg.DriveLength = 1.2;
+  cfg.WheelRadius = 0.2;
+  cfg.VelocityLimits = {-5.0, 5.0};
+  cfg.SteeringLimits = {-0.3, 0.3};
+
+  AckermannState initial_state{};
+  initial_state.LongitudinalSpeed = 2.0;
+  initial_state.HeadingAngle = 0.0;
+  initial_state.SteeringAngle = 0.0;
+  double delta_time = 0.1;
+  AckermannModel model(cfg, initial_state, delta_time);
+
+  AckermannState updated_state = model.Update(0.0, 1.0);
+  EXPECT_NEAR(updated_state.SteeringAngle, 0.3, 1e-6);
+}
+
+/* --------------------------- PID unit tests --------------------------- */
+
+/**
+ * @test SetpointEqualsMeasurement
+ * @brief Zero error yields zero output.
+ *
+ * @details
+ * With \f$e=0\f$, P/I/D terms are all zero; output is 0 (within floating
+ * tolerance).
+ */
+TEST(PIDControllerTest, SetpointEqualsMeasurement) {
+  PIDController controller(1.0, 0.1, 0.01, 0.1, -100.0, 100.0);
+  double output =
+      controller.Compute(/*target_setpoint=*/5.0, /*measured_value=*/5.0);
+  EXPECT_NEAR(output, 0.0, 1e-6);
+}
+
+/**
+ * @test ProportionalOnlyBehavior
+ * @brief With Ki=Kd=0, output equals Kp * error (within clamps).
+ */
+TEST(PIDControllerTest, ProportionalOnlyBehavior) {
+  PIDController controller(/*Kp=*/2.0, /*Ki=*/0.0, /*Kd=*/0.0, 0.1, -10.0,
+                           10.0);
+  double output = controller.Compute(3.0, 1.0);
+  EXPECT_NEAR(output, 4.0, 1e-6);
+}
+
+/**
+ * @test ClampsToMaxOutput
+ * @brief Large error saturates at max_output.
+ */
+TEST(PIDControllerTest, ClampsToMaxOutput) {
+  PIDController controller(/*Kp=*/100.0, 0.0, 0.0, 0.1, -5.0, 5.0);
+  double output = controller.Compute(10.0, 0.0);
+  EXPECT_NEAR(output, 5.0, 1e-6);
+}
+
+/**
+ * @test ClampsToMinOutput
+ * @brief Large negative error saturates at min_output.
+ */
+TEST(PIDControllerTest, ClampsToMinOutput) {
+  PIDController controller(/*Kp=*/100.0, 0.0, 0.0, 0.1, -5.0, 5.0);
+  double output = controller.Compute(-10.0, 0.0);
+  EXPECT_NEAR(output, -5.0, 1e-6);
+}
+
+/**
+ * @test IntegralOnlyBehavior
+ * @brief With Kp=Kd=0, output integrates error over time (within clamps).
+ */
+TEST(PIDControllerTest, IntegralOnlyBehavior) {
+  const double Ki = 0.5, dt = 0.1;
+  PIDController controller(0.0, Ki, 0.0, dt, -10.0, 10.0);
+  double output1 = controller.Compute(5.0, 3.0);  // integral = 0.2, Iout = 0.1
+  EXPECT_NEAR(output1, 0.1, 1e-6);
+  double output2 = controller.Compute(5.0, 3.0);  // integral = 0.4, Iout = 0.2
+  EXPECT_NEAR(output2, 0.2, 1e-6);
+}
+
+/**
+ * @test DifferentialOnlyBehavior
+ * @brief With Kp=Ki=0, output follows derivative of error.
+ */
+TEST(PIDControllerTest, DifferentialOnlyBehavior) {
+  const double Kd = 0.5, dt = 0.1;
+  PIDController controller(0.0, 0.0, Kd, dt, -10.0, 10.0);
+  controller.SetDerivativeFilterTau(0.0);  // <-- add this
+
+  double output1 = controller.Compute(5.0, 3.0);
+  EXPECT_NEAR(output1, 10.0, 1e-6);
+  double output2 = controller.Compute(5.0, 4.0);
+  EXPECT_NEAR(output2, -5.0, 1e-6);
+}
+
+/**
+ * @test CombinedPIDBehavior
+ * @brief With all terms active, first step clamps, second step yields ~1.4.
+ */
+TEST(PIDControllerTest, CombinedPIDBehavior) {
+  const double Kp = 1.0, Ki = 0.5, Kd = 0.1, dt = 0.1;
+  PIDController controller(Kp, Ki, Kd, dt, -10.0, 10.0);
+  controller.SetDerivativeFilterTau(0.0);  // <-- add this
+
+  double output1 = controller.Compute(10.0, 5.0);
+  EXPECT_NEAR(output1, 10.0, 1e-6);
+  double output2 = controller.Compute(10.0, 7.0);
+  EXPECT_NEAR(output2, 1.4, 1e-6);
+}
+
