@@ -1,3 +1,5 @@
+# app/CMakeLists.txt
+
 # Any C++ source files needed to build this target (shell-app).
 add_executable(shell-app
   # list of source cpp files:
@@ -5,8 +7,8 @@ add_executable(shell-app
   )
 
 # Any include directories needed to build this target.
-# Note: we do not need to specify the include directories for the
-# dependent libraries, they are automatically included.
+# Note: this is not strictly needed because the library targets
+# use PUBLIC include directories, but it is harmless.
 target_include_directories(shell-app PUBLIC
   # list inclue directories:
   ${CMAKE_SOURCE_DIR}/include
@@ -15,8 +17,6 @@ target_include_directories(shell-app PUBLIC
 # Any dependent libraires needed to build this target.
 target_link_libraries(shell-app PUBLIC -static
   # list of libraries
-  libackermann
-  libpid
+  ackermann   # <-- CHANGED: Use the target name, not "libackermann"
+              # We don't need 'pid' here because 'ackermann' links to it
   )
-
-  
