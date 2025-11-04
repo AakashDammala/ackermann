@@ -16,52 +16,40 @@ The Ackermann steering controller uses **two PID loops (velocity and steering)**
 - Siddhant Deshmukh (iamsid@umd.edu)
 - Dayanidhi Kandade (dotsv@umd.edu)
 
-| | **Driver** | **Navigator** | **Design Keeper** |
-|--------|-----------|-----------|------------|
-| Phase0 | Aakash    | Siddhant  | Dayanidhi  |
-| Phase1 | Siddhant  | Dayanidhi | Aakash     |
-| Phase2 | Dayanidhi | Aakash    | Siddhant   |
+|        | **Driver** | **Navigator** | **Design Keeper** |
+|--------|------------|---------------|-------------------|
+| Phase0 | Akash      | Siddhant      | Dayanidhi         |
+| Phase1 | Siddhant   | Dayanidhi     | Akash             |
+| Phase2 | Dayanidhi  | Akash         | Siddhant          |
 
 ## Project deliverables - Phase 1
-- Project proposal pdf - [link](https://drive.google.com/drive/folders/17YOXgnPOURfj6kv4C_gz0j2qia5i_SLz)
-- Task backlog - [link](https://docs.google.com/spreadsheets/d/1MSmNYYrsdP3VOwCCngEbLwx22oEamR3j0daP1eC6vfI)
-- Quad chart - [link](https://drive.google.com/drive/folders/1tBJrR3zndVTcWkPMcNMntL4yrfq1HN4L)
-- Project proposal video - [link](https://drive.google.com/drive/folders/18yC6tSubWybAqKMQM1WBmayf3rTnOC_k)
-- Sprint planning & review notes - [link](https://docs.google.com/document/d/1Z2aq4fQkFDU_wFhV7ZzRSlVKz1qRIT2GHG1o_Dp-wCI)
+  - Project proposal pdf - [link](https://drive.google.com/drive/folders/17YOXgnPOURfj6kv4C_gz0j2qia5i_SLz)
+  - Task backlog - [link](https://docs.google.com/spreadsheets/d/1MSmNYYrsdP3VOwCCngEbLwx22oEamR3j0daP1eC6vfI)
+  - Quad chart - [link](https://drive.google.com/drive/folders/1tBJrR3zndVTcWkPMcNMntL4yrfq1HN4L)
+  - Project proposal video - [link](https://drive.google.com/drive/folders/18yC6tSubWybAqKMQM1WBmayf3rTnOC_k)
+  - Sprint planning & review notes - [link](https://docs.google.com/document/d/1Z2aq4fQkFDU_wFhV7ZzRSlVKz1qRIT2GHG1o_Dp-wCI)
 
 ## Overview of Phase 0 of the project
-1. We propose a modular C++17 Ackermann Steering Controller to convert high-level planner commands ($v$, $\omega$) into actuator-level steering and wheel velocity outputs for Acme's autonomous vehicle.
-2. In Phase 0, we successfully established the complete project structure, CI/CD pipeline with CodeCov, and all unit tests required for our Test-Driven Development (TDD) approach.
+1. We propose a modular C++17 Ackermann Steering Controller to convert high-level planner commands ($v$, $\omega$) into actuator-level steering and wheel velocity outputs for Acme's autonomous vehicle. 
+2. In Phase 0, we successfully established the complete project structure, CI/CD pipeline with CodeCov, and all unit tests required for our Test-Driven Development (TDD) approach. 
 3. We are now proceeding with an Agile (AIP) process to implement the core kinematic logic.
 
-**Operation** - setup the project scaffolding including directory structure, build system, CI pipeline, design and planning and test cases under TDD framework.
+**Operation** - setup the project scaffolding including directory structure, build system, CI pipeline, design and planning and test cases under TDD framework
 
 **Dependencies** - cpp-boilerplate-v2 was used as the base, along with libraries such as Google test and other dependencies such as CodeCov.
 
 **Known bugs / Potential issues** - All the test cases fail, since the core implementation will be done in the next phase of development.
 
 ## Overview of Phase 1 of the project
-1. Phase 1 involved implementing the core kinematics for the ackermann library, for linear velocity and steering angle.
-2. Further processing the output of kinematic model's wheel velocity to get wheel rpms, followed by verifying all pre-written test cases locally.
-3. The code is then verified for the test coverage by the CI trigger in Github.
+1. Phase 1 involved implementing the core kinematics for the ackermann library, for linear velocity and steering angle. 
+2. Further processing the output of kinematic model's wheel velocity to get wheel rpms, followed by verifying all pre-written test cases locally. 
+3. The code is then verified for the test coverage by the CI trigger in Github.   
 
-**Operation** - implemented the core kinematics of ackermann library.
+**Operation** - implemented the core kinematics of ackermann library
 
-**Dependencies** - test cases written in phase 0 for ackermann library.
+**Dependencies** - test cases written in phase 0 for ackermann library
 
 **Known bugs / Potential issues** - This library would be stable for lower speeds and accelerations only, as PID controller will be implemented in next phase of the development.
-
-## Overview of Phase 2 of the project
-1.  Phase 2 introduced a complete, standalone PID controller library (`libpid`) with derivative filtering, anti-windup, and integral clamping.
-2.  The `AckermannController` was refactored to use two instances of the `PIDController` to manage closed-loop control for both longitudinal velocity and steering angle.
-3.  Advanced signal shaping features, including **rate-limiting** and **deadbands**, were added to the controller outputs for smoother, more realistic command generation.
-4.  A new simulation application (`app/main.cpp`) was developed to run the controller against a simple kinematic plant model, logging all telemetry to a CSV file for analysis.
-
-**Operation** - Implemented a `libpid` library and integrated it into the `AckermannController` for closed-loop control. Developed a simulation executable to demonstrate controller performance.
-
-**Dependencies** - This phase builds on the kinematic model from Phase 1 and adds new unit tests for the `PIDController` library.
-
-**Known bugs / Potential issues** - The simulation plant is a simplified first-order model. Controller tuning (PID gains) is set to default values in `main.cpp` and may require adjustment for optimal performance in different dynamic scenarios.
 
 ## Instructions to run the project
 
