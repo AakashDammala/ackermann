@@ -1,0 +1,6 @@
+<map id="PIDController::Compute" name="PIDController::Compute">
+<area shape="rect" id="node1" title="Compute one PID step." alt="" coords="5,56,180,83"/>
+<area shape="rect" id="node2" href="$classPIDController.html#a1ae5599cc5560416583bb0e18e77726b" title="Compute derivative term (with optional filtering)." alt="" coords="234,5,477,32"/>
+<area shape="rect" id="node3" href="$classPIDController.html#ae5a4c08e3433726c57701277753362b8" title="Compute integral term (with clamping)." alt="" coords="243,56,468,83"/>
+<area shape="rect" id="node4" href="$classPIDController.html#a6261ee4c409d5423d0eba21ab8aec51d" title="Compute proportional term." alt="" coords="228,107,483,133"/>
+</map>

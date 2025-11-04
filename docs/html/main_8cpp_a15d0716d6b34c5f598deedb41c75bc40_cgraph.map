@@ -1,0 +1,6 @@
+<map id="MakeSteerPid" name="MakeSteerPid">
+<area shape="rect" id="node1" title=" " alt="" coords="5,64,116,91"/>
+<area shape="rect" id="node2" href="$classPIDController.html#a3ffd159b7f87c6df3dba7181a0e86fc8" title="Configure anti&#45;windup back&#45;calculation gain." alt="" coords="164,5,407,32"/>
+<area shape="rect" id="node3" href="$classPIDController.html#a23c0393a55555cb35112bd75f5a31fa9" title="Set a first&#45;order low&#45;pass filter time constant for the derivative." alt="" coords="183,57,388,98"/>
+<area shape="rect" id="node4" href="$classPIDController.html#a6225150410ddac6789bb6ab5d68c98be" title="Clamp the integral state to a fixed range." alt="" coords="192,122,379,163"/>
+</map>

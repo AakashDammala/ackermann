@@ -6,8 +6,8 @@ project(ackermann-controller)
 # ref: https://google.github.io/googletest/quickstart-cmake.html
 #
 
-# GoogleTest requires at least C++14
-set(CMAKE_CXX_STANDARD 14)
+# GoogleTest requires at least C++17
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # declares a dependency on GoogleTest which is downloaded from GitHub
@@ -30,7 +30,7 @@ include(GoogleTest)
 #
 find_package(Doxygen)
 if ( DOXYGEN_FOUND )
-  set( DOXYGEN_OUTPUT_DIRECTORY     ${PROJECT_SOURCE_DIR}/docs )
+  set( DOXYGEN_OUTPUT_DIRECTORY      ${PROJECT_SOURCE_DIR}/docs )
   set( DOXYGEN_COLLABORATION_GRAPH  YES )
   set( DOXYGEN_EXTRACT_ALL          YES )
   set( DOXYGEN_CLASS_DIAGRAMS       YES )
@@ -88,26 +88,47 @@ endif()
 # ref: https://iamsorush.com/posts/cpp-cmake-essential/
 # ref: https://cmake.org/cmake/help/latest/guide/tutorial/index.html
 #
-add_subdirectory(libs)
+
+# --- CHANGED SECTION ---
+# 1. Define your libraries from the source files in 'src/'
+add_library(pid src/libpid.cpp)
+add_library(ackermann src/libackermann.cpp)
+
+# 2. Tell the library targets where their headers are.
+#    By using PUBLIC, any target that links to them
+#    will automatically get this include path.
+target_include_directories(pid PUBLIC 
+  ${PROJECT_SOURCE_DIR}/include
+)
+target_include_directories(ackermann PUBLIC 
+  ${PROJECT_SOURCE_DIR}/include
+)
+
+# 3. Link ackermann to pid, since it depends on it
+target_link_libraries(ackermann PUBLIC pid)
+
+# 4. Now add the subdirectories that build the executables
 add_subdirectory(app)
 add_subdirectory(test)
+# --- END CHANGED SECTION ---
 
 # create a target to build documentation
-doxygen_add_docs(docs           # target name
+doxygen_add_docs(docs          # target name
   # List of files or directories
   ${PROJECT_SOURCE_DIR}/app
-  ${PROJECT_SOURCE_DIR}/libs
+  ${PROJECT_SOURCE_DIR}/src   # <-- CHANGED from 'libs' to 'src'
   ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/docs/mainpage.dox
   )
 
 # create targets for building code coverage reports
 if(WANT_COVERAGE)
   # unit test coverage:
   setup_target_for_coverage_lcov ( # use lcov to generate coverage report
-    NAME test_coverage          # target name
-    EXECUTABLE ctest || true    # what to run insdie the build directory?
-                                 #   '|| true' --> continue coverage even if ctest failed
-    # EXECUTABLE ctest     # what to run insdie the build directory?
+    NAME test_coverage        # target name
+    EXECUTABLE ctest || true   # what to run insdie the build directory?
+                               #  '|| true' --> continue coverage even if ctest failed
+    # EXECUTABLE ctest    # what to run insdie the build directory?
     EXCLUDE
       "app/main.cpp"     # Unit test does not run app, so don't analyze it
       "*gtest*"          # Don't analyze googleTest code
@@ -117,8 +138,8 @@ if(WANT_COVERAGE)
   # code coverage for the app (shell-app):
   # Use gcovr insetad of lcov if you want to see branch coverage as well
   setup_target_for_coverage_gcovr_html ( # use gcovr to generate coverage report
-    NAME app_coverage          # target name
-    EXECUTABLE shell-app       # what to run insdie the build directory?
+    NAME app_coverage         # target name
+    EXECUTABLE shell-app      # what to run insdie the build directory?
     EXCLUDE
     "test/test.cpp"    # App does not run unit test, so don't analyze it
     "test/main.cpp"    # App does not run unit test, so don't analyze it

@@ -1,0 +1,7 @@
+<map id="AckermannController" name="AckermannController">
+<area shape="rect" id="node1" title="Two&#45;loop controller (speed + steering) that feeds Ackermann kinematics." alt="" coords="217,681,411,847"/>
+<area shape="rect" id="node2" title=" " alt="" coords="206,5,273,83"/>
+<area shape="rect" id="node3" href="$classPIDController.html" title="Scalar PID controller with optional anti&#45;windup and derivative filtering." alt="" coords="219,292,409,604"/>
+<area shape="rect" id="node4" href="$structAckermannConfig.html" title="Geometry, limits, and shaping parameters for controller/model." alt="" coords="434,409,570,487"/>
+<area shape="rect" id="node5" title=" " alt="" coords="490,5,663,83"/>
+</map>

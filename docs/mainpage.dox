@@ -1,0 +1,61 @@
+/**
+\mainpage Ackermann Controller Library Documentation
+
+\section intro_sec Introduction
+The Ackermann Controller is a C++17 library that implements steering control for vehicles using Ackermann steering geometry. It converts high-level planner commands (linear velocity v and angular velocity ω) into actuator-level steering and wheel velocity outputs for autonomous vehicles.
+
+\section features_sec Key Features
+- Ackermann steering kinematics computation
+- Configurable vehicle parameters:
+  - Drive width and length
+  - Wheel radius
+  - Steering angle limits
+  - Velocity limits
+- PID control for wheel speed control
+- Comprehensive unit testing suite
+- Test-Driven Development (TDD) approach
+
+\section arch_sec Architecture
+The project is organized into two main libraries:
+- \b libackermann: Core implementation of Ackermann steering controller
+- \b libpid: Implementation of PID controller for wheel speed control
+
+\section usage_sec Usage
+Here's a basic example of using the Ackermann Controller:
+\code{.cpp}
+#include "ackermann_controller.hpp"
+
+// Create controller instance with vehicle parameters
+AckermannController controller(wheelbase, track_width, wheel_radius);
+
+// Set desired velocities
+double linear_velocity = 1.0;  // m/s
+double angular_velocity = 0.5; // rad/s
+
+// Get wheel velocities and steering angles
+controller.computeWheelSpeedsAndSteering(linear_velocity, angular_velocity);
+\endcode
+
+\section build_sec Building and Installation
+To build the project:
+\code{.bash}
+cmake -S ./ -B build/
+cmake --build build/
+\endcode
+
+To run the tests:
+\code{.bash}
+./build/test/cpp-test
+\endcode
+
+\section license_sec License
+This project is licensed under the MIT License.
+
+\section authors_sec Authors
+- Aakash Shetty Dammala (asd@umd.edu)
+- Siddhant Deshmukh (iamsid@umd.edu)
+- Dayanidhi Kandade (dotsv@umd.edu)
+
+\section acknowledgments_sec Acknowledgments
+This project has been built on top of the cpp-boilerplate-v2 repository by Tommy Chang.
+*/

@@ -1,0 +1,7 @@
+<map id="AckermannController::PidStep" name="AckermannController::PidStep">
+<area shape="rect" id="node1" title="Dispatch to PID::Compute (shim kept for symmetry with earlier variants)." alt="" coords="5,49,164,90"/>
+<area shape="rect" id="node2" href="$classPIDController.html#a48721f5cc47c9cf99724e15557b99da7" title="Compute one PID step." alt="" coords="212,56,387,83"/>
+<area shape="rect" id="node3" href="$classPIDController.html#a1ae5599cc5560416583bb0e18e77726b" title="Compute derivative term (with optional filtering)." alt="" coords="441,5,683,32"/>
+<area shape="rect" id="node4" href="$classPIDController.html#ae5a4c08e3433726c57701277753362b8" title="Compute integral term (with clamping)." alt="" coords="449,56,675,83"/>
+<area shape="rect" id="node5" href="$classPIDController.html#a6261ee4c409d5423d0eba21ab8aec51d" title="Compute proportional term." alt="" coords="435,107,689,133"/>
+</map>

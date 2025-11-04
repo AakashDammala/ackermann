@@ -1,0 +1,16 @@
+Consolidate compiler generated dependencies of target pid
+[ 11%] Built target pid
+Consolidate compiler generated dependencies of target ackermann
+[ 23%] Built target ackermann
+Consolidate compiler generated dependencies of target gtest
+[ 35%] Built target gtest
+Consolidate compiler generated dependencies of target gmock
+[ 47%] Built target gmock
+Consolidate compiler generated dependencies of target gmock_main
+[ 58%] Built target gmock_main
+Consolidate compiler generated dependencies of target gtest_main
+[ 70%] Built target gtest_main
+Consolidate compiler generated dependencies of target shell-app
+[ 82%] Built target shell-app
+Consolidate compiler generated dependencies of target cpp-test
+[100%] Built target cpp-test

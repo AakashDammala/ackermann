@@ -1,0 +1,5 @@
+<map id="PIDController::ComputeProportional" name="PIDController::ComputeProportional">
+<area shape="rect" id="node1" title="Compute proportional term." alt="" coords="435,13,689,39"/>
+<area shape="rect" id="node2" href="$classPIDController.html#a48721f5cc47c9cf99724e15557b99da7" title="Compute one PID step." alt="" coords="212,13,387,39"/>
+<area shape="rect" id="node3" href="$classAckermannController.html#a1b30c244864414289b562c28ba4e793d" title="Dispatch to PID::Compute (shim kept for symmetry with earlier variants)." alt="" coords="5,5,164,47"/>
+</map>

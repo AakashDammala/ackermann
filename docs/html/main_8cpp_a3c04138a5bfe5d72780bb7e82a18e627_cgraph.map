@@ -1,0 +1,12 @@
+<map id="main" name="main">
+<area shape="rect" id="node1" title=" " alt="" coords="5,122,60,149"/>
+<area shape="rect" id="node2" href="$classAckermannController.html#a20e0b31e7316207cc3b354a43ed77d5d" title="Compute per&#45;wheel RPMs and front steering from vehicle&#45;level references." alt="" coords="124,5,283,47"/>
+<area shape="rect" id="node3" href="$main_8cpp.html#a15d0716d6b34c5f598deedb41c75bc40" title=" " alt="" coords="148,122,259,149"/>
+<area shape="rect" id="node7" href="$main_8cpp.html#addaf352bc35f4870b5e5f186e7ca5857" title=" " alt="" coords="155,71,252,98"/>
+<area shape="rect" id="node8" href="$classAckermannController.html#a0c35d49cfa067500dfae40d2326ef340" title="(Optional) Provide external measurements to the controller." alt="" coords="124,173,283,215"/>
+<area shape="rect" id="node9" href="$classAckermannModel.html#a419694411a7b2122f2f59c15a10c792e" title="One integration step of the kinematic model." alt="" coords="108,239,299,266"/>
+<area shape="rect" id="node4" href="$classPIDController.html#a3ffd159b7f87c6df3dba7181a0e86fc8" title="Configure anti&#45;windup back&#45;calculation gain." alt="" coords="347,35,589,62"/>
+<area shape="rect" id="node5" href="$classPIDController.html#a23c0393a55555cb35112bd75f5a31fa9" title="Set a first&#45;order low&#45;pass filter time constant for the derivative." alt="" coords="365,87,571,128"/>
+<area shape="rect" id="node6" href="$classPIDController.html#a6225150410ddac6789bb6ab5d68c98be" title="Clamp the integral state to a fixed range." alt="" coords="375,152,561,193"/>
+<area shape="rect" id="node10" href="$namespaceAckUtils.html#a81b0fe36241490648aa5f6b4b54790a0" title="Wrap angle to the interval [0, 2π)." alt="" coords="392,239,544,266"/>
+</map>

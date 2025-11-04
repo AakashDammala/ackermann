@@ -1,0 +1,4 @@
+<map id="PIDController" name="PIDController">
+<area shape="rect" id="node1" title="Scalar PID controller with optional anti&#45;windup and derivative filtering." alt="" coords="5,292,196,604"/>
+<area shape="rect" id="node2" title=" " alt="" coords="67,5,134,83"/>
+</map>

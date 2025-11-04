@@ -1,0 +1,4 @@
+<map id="AckermannModel::GetVehicleState" name="AckermannModel::GetVehicleState">
+<area shape="rect" id="node1" title="Compute per&#45;wheel RPM and front steering from current state." alt="" coords="5,5,219,47"/>
+<area shape="rect" id="node2" href="$classAckermannModel.html#a7f356c135c85154f4db48693e9e5053c" title="Convert linear wheel surface speed to RPM." alt="" coords="267,13,493,39"/>
+</map>

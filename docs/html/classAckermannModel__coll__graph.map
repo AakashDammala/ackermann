@@ -1,0 +1,7 @@
+<map id="AckermannModel" name="AckermannModel">
+<area shape="rect" id="node1" title="Simple bicycle&#45;model kinematics with per&#45;wheel mapping." alt="" coords="87,373,257,509"/>
+<area shape="rect" id="node2" title=" " alt="" coords="75,5,141,83"/>
+<area shape="rect" id="node3" href="$structAckermannState.html" title="Vehicle state for an Ackermann platform." alt="" coords="107,233,237,311"/>
+<area shape="rect" id="node4" href="$structAckermannConfig.html" title="Geometry, limits, and shaping parameters for controller/model." alt="" coords="261,233,397,311"/>
+<area shape="rect" id="node5" title=" " alt="" coords="383,5,556,83"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="PIDController::SetIntegralLimits" name="PIDController::SetIntegralLimits">
+<area shape="rect" id="node1" title="Clamp the integral state to a fixed range." alt="" coords="267,23,453,65"/>
+<area shape="rect" id="node2" href="$main_8cpp.html#a15d0716d6b34c5f598deedb41c75bc40" title=" " alt="" coords="108,5,219,32"/>
+<area shape="rect" id="node4" href="$main_8cpp.html#addaf352bc35f4870b5e5f186e7ca5857" title=" " alt="" coords="115,56,212,83"/>
+<area shape="rect" id="node3" href="$main_8cpp.html#a3c04138a5bfe5d72780bb7e82a18e627" title=" " alt="" coords="5,31,60,57"/>
+</map>

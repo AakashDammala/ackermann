@@ -1,0 +1,7 @@
+<map id="include/libpid.hpp" name="include/libpid.hpp">
+<area shape="rect" id="node1" title="Scalar PID controller with anti&#45;windup and derivative filtering (CamelCase API)." alt="" coords="31,5,168,32"/>
+<area shape="rect" id="node2" href="$main_8cpp.html" title="CLI demo: PID&#45;controlled Ackermann kinematics with CSV logging." alt="" coords="5,155,116,181"/>
+<area shape="rect" id="node3" href="$libpid_8cpp.html" title="Simple PID controller interface." alt="" coords="45,80,153,107"/>
+<area shape="rect" id="node4" href="$libackermann_8hpp.html" title="PID&#45;integrated Ackermann controller and kinematic model." alt="" coords="178,80,367,107"/>
+<area shape="rect" id="node5" href="$libackermann_8cpp.html" title="Runtime implementation for PID&#45;integrated Ackermann controller and model." alt="" coords="193,155,353,181"/>
+</map>
